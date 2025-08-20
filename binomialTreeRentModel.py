@@ -24,42 +24,40 @@ compute (and store) the next values on the tree
 
 class Node:
     """Class to represent a node."""
-    goodprob = 0.9
-    badprob = 1 - goodprob
-    rent = 1000
-    shitrate = 250
-
-    def __init__(self, val=None, up=None, dn=None):
-        self.val = val
-        self.up = up
-        self.dn = dn
-
-    def __repr__(self):
-        # """Define output of print function."""
-        if self.up or self.dn:
-            return f"{self.val}[{self.up},{self.dn}]"
-        return str(self.val)
+    def __init__(self, val=None, prob=None, recovery=None, rent=None):
+        self.up = self.dn = None
+        Node.recovery = recovery or Node.recovery
+        Node.prob = prob or Node.prob
+        Node.rent = rent or Node.rent
+        self.val = val or self.getfairvalue()
 
     def getfairvalue(self):
-        if self.up and self.dn:
-            return self.up.val + self.dn.val
+        """Get fair value (only called if not set on object creation)."""
+        good = Node.prob * Node.rent
+        bad = (1 - Node.prob) * Node.rent * Node.recovery
+        return good + bad
 
-    def mkup(self):
-        self.up= Node(Node.rent * Node.goodprob)
 
-    def mkdn(self):
-        self.dn= Node(Node.shitrate * Node.badprob)
+    def __repr__(self):
+        """Define output of print function."""
+        if self.up or self.dn:
+            return(f"{self.val}[{self.up},{self.dn}]")
+        return str(self.val)
 
     def mkupdn(self):
-        self.mkup()
-        self.mkdn()
+        """Create child nodes."""
+        self.up = Node(Node.prob * self.val)
+        self.dn = Node((1 - Node.prob) * self.val * Node.recovery)
 
 
-root = Node()
+root = Node(prob=0.99, recovery=0.15, rent=1000)
 root.mkupdn()
-root.val = root.getfairvalue()
+root.up.mkupdn()
+root.dn.mkupdn()
 
 print(root)
+
+
 
 """
 output is:
