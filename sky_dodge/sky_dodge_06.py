@@ -10,19 +10,12 @@ by: @dlefcoe
 music from: https://freemusicarchive.org/genre/Instrumental
 
 """
-
-
 # sky dodge game
 
 # import the pygame module
 import os
 import pygame
 import random
-
-
-# import pygame locals for easier access to key coordiantes
-# from pygame.locals import K_UP, K_DOWN, K_LEFT, K_RIGHT, K_ESCAPE, KEYDOWN, QUIT
-
 
 # define size (for screen)
 WIDTH = 800
@@ -161,6 +154,9 @@ class Game:
         # initialise player
         self.player = Player()
 
+        # initialise multiple enemies
+        # self.all_sprites = pygame.sprite.Group()
+
         # initialise enemies
         self.enemy = []
         self.numEnemies = 10
@@ -185,15 +181,16 @@ class Game:
             if event.type == pygame.QUIT:
                 self.running = False
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_DOWN:
+                key_press:int = event.key
+                if key_press == pygame.K_DOWN:
                     self.player.y_speed += 1
-                if event.key == pygame.K_UP:
+                if key_press == pygame.K_UP:
                     self.player.y_speed -= 1
-                if event.key == pygame.K_LEFT:
+                if key_press == pygame.K_LEFT:
                     self.player.x_speed -= 1
-                if event.key == pygame.K_RIGHT:
+                if key_press == pygame.K_RIGHT:
                     self.player.x_speed += 1
-                if event.key == pygame.K_ESCAPE:
+                if key_press == pygame.K_ESCAPE:
                     self.running = False
 
     def update_player_movement(self):
@@ -211,17 +208,19 @@ class Game:
     def handle_collisions(self):
         """Check and handle collisions with enemies"""
         collisionRadius = 50
+        my_enemy: Enemy = self.enemy[0]
         if (
-            abs(self.player.rect.center[0] - self.enemy[0].rect.center[0]) < collisionRadius
-            and abs(self.player.rect.center[1] - self.enemy[0].rect.center[1]) < collisionRadius
+            abs(self.player.rect.center[0] - my_enemy.rect.center[0]) < collisionRadius
+            and abs(self.player.rect.center[1] - my_enemy.rect.center[1]) < collisionRadius
         ):
             print("enemy count crash:", self.numEnemies)
             self.thwack_01.play()
             self.thwack_02.play(2)
 
             # reduce number of enemies
-            self.enemy[self.numEnemies - 1].image.fill(BLACK)
-            self.enemy[self.numEnemies - 1].image.set_colorkey(BLACK)
+            my_enemy: Enemy = self.enemy[self.numEnemies - 1]
+            my_enemy.image.fill(BLACK)
+            my_enemy.image.set_colorkey(BLACK)
             self.numEnemies -= 1
 
             # 1 enemy left
