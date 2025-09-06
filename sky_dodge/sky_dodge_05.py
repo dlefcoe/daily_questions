@@ -1,9 +1,6 @@
 """
 sky dodge game
 
-original version: somewhere around 2020
-latest version: 2025-09-06
-
 by: @dlefcoe
 
 
