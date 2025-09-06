@@ -41,35 +41,6 @@ game_folder = os.path.dirname(__file__)
 img_folder = os.path.join(game_folder, "img")
 snd_folder = os.path.join(game_folder, "snd")
 
-# initialise pygame
-pygame.init()
-
-# caption and background
-pygame.display.set_caption("DL skydodge game")
-background = pygame.image.load(os.path.join(img_folder, "space_background_01.jpg"))
-background = pygame.transform.scale(background, (WIDTH, HEIGHT))
-
-# load game sounds
-thwack_01 = pygame.mixer.Sound(
-    os.path.join(snd_folder, "thwack-1.0\\PCM\\thwack-02.wav")
-)
-thwack_02 = pygame.mixer.Sound(
-    os.path.join(snd_folder, "thwack-1.0\\PCM\\thwack-03.wav")
-)
-soundFile = os.path.join(snd_folder, "Chad_Crouch_-_Algorithms.mp3")
-soundFile_LastEnemy = os.path.join(snd_folder, "WHY_-_02_-_crashlanding_in_gaza.mp3")
-pygame.mixer.music.load(soundFile)
-
-# play sound
-pygame.mixer.music.play(loops=-1)
-
-# text message to player
-font = pygame.font.SysFont("monospace", 12)
-text = font.render("sky dodge text", True, WHITE, BLACK)
-textRect = text.get_rect()
-textRect.center = (int(WIDTH * 0.60), int(HEIGHT * 0.05))
-textRect02 = text.get_rect()
-textRect02.center = (int(WIDTH * 0.60), int(HEIGHT * 0.07))
 
 
 class Player(pygame.sprite.Sprite):
@@ -144,6 +115,42 @@ class Enemy(pygame.sprite.Sprite):
             self.rect.right = 0
         if self.rect.right < 0:
             self.rect.left = WIDTH
+
+
+class Game:
+    def __init__(self):
+        pass
+
+
+# initialise pygame
+pygame.init()
+
+# caption and background
+pygame.display.set_caption("DL skydodge game")
+background = pygame.image.load(os.path.join(img_folder, "space_background_01.jpg"))
+background = pygame.transform.scale(background, (WIDTH, HEIGHT))
+
+# load game sounds
+thwack_01 = pygame.mixer.Sound(
+    os.path.join(snd_folder, "thwack-1.0\\PCM\\thwack-02.wav")
+)
+thwack_02 = pygame.mixer.Sound(
+    os.path.join(snd_folder, "thwack-1.0\\PCM\\thwack-03.wav")
+)
+soundFile = os.path.join(snd_folder, "Chad_Crouch_-_Algorithms.mp3")
+soundFile_LastEnemy = os.path.join(snd_folder, "WHY_-_02_-_crashlanding_in_gaza.mp3")
+pygame.mixer.music.load(soundFile)
+
+# play sound
+pygame.mixer.music.play(loops=-1)
+
+# text message to player
+font = pygame.font.SysFont("monospace", 12)
+text = font.render("sky dodge text", True, WHITE, BLACK)
+textRect = text.get_rect()
+textRect.center = (int(WIDTH * 0.60), int(HEIGHT * 0.05))
+textRect02 = text.get_rect()
+textRect02.center = (int(WIDTH * 0.60), int(HEIGHT * 0.07))
 
 
 # setup the drawing window
