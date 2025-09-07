@@ -1,4 +1,4 @@
-# pygame - Python Game Library
+# pygame-ce - Python Game Library
 # Copyright (C) 2000-2001  Pete Shinners
 #
 # This library is free software; you can redistribute it and/or
@@ -21,24 +21,42 @@
 It is written on top of the excellent SDL library. This allows you
 to create fully featured games and multimedia programs in the python
 language. The package is highly portable, with games running on
-Windows, MacOS, OS X, BeOS, FreeBSD, IRIX, and Linux."""
+Windows, macOS, OS X, BeOS, FreeBSD, IRIX, and Linux."""
 
-import sys
 import os
+import sys
+import platform
 
 # Choose Windows display driver
 if os.name == "nt":
     pygame_dir = os.path.split(__file__)[0]
+    dll_parents = {pygame_dir}
+    try:
+        # For editable support, add some more folders where DLLs are available.
+        # This block only executes under an editable install. In a "normal"
+        # install, the json file will not be installed at the supplied path.
+        with open(
+            os.path.join(
+                os.path.dirname(pygame_dir), "buildconfig", "win_dll_dirs.json"
+            ),
+            encoding="utf-8",
+        ) as f:
+            import json
 
-    # pypy does not find the dlls, so we add package folder to PATH.
-    os.environ["PATH"] = os.environ["PATH"] + ";" + pygame_dir
+            dll_parents.update(json.load(f))
+            del json
+    except (FileNotFoundError, ValueError):
+        pass
 
-    # windows store python does not find the dlls, so we run this
-    if sys.version_info > (3, 8):
-        os.add_dll_directory(pygame_dir)  # only available in 3.8+
+    d = ""  # define variable here so that we can consistently delete it
+    for d in dll_parents:
+        # adding to PATH is the legacy way, os.add_dll_directory is the new
+        # and recommended method. For extra safety we do both
+        os.environ["PATH"] = os.environ["PATH"] + ";" + d
+        os.add_dll_directory(d)
 
     # cleanup namespace
-    del pygame_dir
+    del pygame_dir, dll_parents, d
 
 # when running under X11, always set the SDL window WM_CLASS to make the
 #   window managers correctly match the pygame window.
@@ -84,6 +102,40 @@ class MissingModule:
             print(message)
 
 
+# This is a special loader for WebAssembly platform
+# where pygame is in fact statically linked
+# mixing single phase (C) and multiphase modules (cython)
+if sys.platform in ("wasi", "emscripten"):
+    try:
+        import pygame_static
+    except ModuleNotFoundError:
+        pygame_static = None
+
+    if pygame_static:
+        pygame = sys.modules[__name__]
+
+        pygame.Color = pygame.color.Color
+
+        Vector2 = pygame.math.Vector2
+        Vector3 = pygame.math.Vector3
+
+        Rect = pygame.rect.Rect
+
+        BufferProxy = pygame.bufferproxy.BufferProxy
+
+        # cython modules use multiphase initialisation when not in builtin Inittab.
+
+        from pygame import _sdl2
+
+        import importlib.machinery
+
+        loader = importlib.machinery.FrozenImporter
+        spec = importlib.machinery.ModuleSpec("", loader)
+        pygame_static.import_cython(spec)
+        del loader, spec
+    del pygame_static
+
+
 # we need to import like this, each at a time. the cleanest way to import
 # our modules is with the import command (not the __import__ function)
 # isort: skip_file
@@ -92,7 +144,7 @@ class MissingModule:
 from pygame.base import *  # pylint: disable=wildcard-import; lgtm[py/polluting-import]
 from pygame.constants import *  # now has __all__ pylint: disable=wildcard-import; lgtm[py/polluting-import]
 from pygame.version import *  # pylint: disable=wildcard-import; lgtm[py/polluting-import]
-from pygame.rect import Rect
+from pygame.rect import Rect, FRect
 from pygame.rwobject import encode_string, encode_file_path
 import pygame.surflock
 import pygame.color
@@ -106,17 +158,10 @@ import pygame.math
 Vector2 = pygame.math.Vector2
 Vector3 = pygame.math.Vector3
 
-__version__ = ver
+from pygame.base import __version__
 
 # next, the "standard" modules
 # we still allow them to be missing for stripped down pygame distributions
-if get_sdl_version() < (2, 0, 0):
-    # cdrom only available for SDL 1.2.X
-    try:
-        import pygame.cdrom
-    except (ImportError, OSError):
-        cdrom = MissingModule("cdrom", urgent=1)
-
 try:
     import pygame.display
 except (ImportError, OSError):
@@ -129,6 +174,7 @@ except (ImportError, OSError):
 
 try:
     import pygame.event
+    from pygame.event import Event
 except (ImportError, OSError):
     event = MissingModule("event", urgent=1)
 
@@ -139,6 +185,7 @@ except (ImportError, OSError):
 
 try:
     import pygame.joystick
+    from pygame.joystick import Joystick
 except (ImportError, OSError):
     joystick = MissingModule("joystick", urgent=1)
 
@@ -167,10 +214,6 @@ try:
 except (ImportError, OSError):
     sprite = MissingModule("sprite", urgent=1)
 
-try:
-    import pygame.threads
-except (ImportError, OSError):
-    threads = MissingModule("threads", urgent=1)
 
 try:
     import pygame.pixelcopy
@@ -206,15 +249,8 @@ except (ImportError, OSError):
 
 
 try:
-    from pygame.overlay import Overlay
-except (ImportError, OSError):
-
-    def Overlay(format, size):  # pylint: disable=unused-argument
-        _attribute_undefined("pygame.Overlay")
-
-
-try:
     import pygame.time
+    from pygame.time import Clock
 except (ImportError, OSError):
     time = MissingModule("time", urgent=1)
 
@@ -235,13 +271,15 @@ try:
     import pygame.font
     import pygame.sysfont
 
+    from pygame.font import Font
+
     pygame.font.SysFont = pygame.sysfont.SysFont
     pygame.font.get_fonts = pygame.sysfont.get_fonts
     pygame.font.match_font = pygame.sysfont.match_font
 except (ImportError, OSError):
     font = MissingModule("font", urgent=0)
 
-# try and load pygame.mixer_music before mixer, for py2app...
+# try to load pygame.mixer_music before mixer, for py2app...
 try:
     import pygame.mixer_music
 
@@ -252,6 +290,8 @@ except (ImportError, OSError):
 
 try:
     import pygame.mixer
+    from pygame.mixer import Sound
+    from pygame.mixer import Channel
 except (ImportError, OSError):
     mixer = MissingModule("mixer", urgent=0)
 
@@ -271,9 +311,33 @@ except (ImportError, OSError):
     sndarray = MissingModule("sndarray", urgent=0)
 
 try:
-    import pygame.fastevent
+    import pygame._debug
+    from pygame._debug import print_debug_info
 except (ImportError, OSError):
-    fastevent = MissingModule("fastevent", urgent=0)
+    debug = MissingModule("_debug", urgent=0)
+
+try:
+    import pygame.system
+    from pygame._data_classes import PowerState as power_state
+
+    power_state.__module__ = "pygame.system"
+    del power_state
+except (ImportError, OSError):
+    system = MissingModule("system", urgent=0)
+
+try:
+    from pygame.window import Window
+except (ImportError, OSError):
+
+    def Window(title="pygame window", size=(640, 480), position=None, **kwargs):  # pylint: disable=unused-argument
+        _attribute_undefined("pygame.Window")
+
+
+try:
+    import pygame.typing
+except (ImportError, OSError):
+    typing = MissingModule("typing", urgent=0)
+
 
 # there's also a couple "internal" modules not needed
 # by users, but putting them here helps "dependency finder"
@@ -332,14 +396,11 @@ def __color_reduce(c):
 
 copyreg.pickle(Color, __color_reduce, __color_constructor)
 
-# Thanks for supporting pygame. Without support now, there won't be pygame later.
 if "PYGAME_HIDE_SUPPORT_PROMPT" not in os.environ:
     print(
-        "pygame {} (SDL {}.{}.{}, Python {}.{}.{})".format(  # pylint: disable=consider-using-f-string
-            ver, *get_sdl_version() + sys.version_info[0:3]
-        )
+        f"pygame-ce {ver} (SDL {'.'.join(map(str, get_sdl_version()))}, "
+        f"Python {platform.python_version()})"
     )
-    print("Hello from the pygame community. https://www.pygame.org/contribute.html")
 
 # cleanup namespace
-del pygame, os, sys, MissingModule, copyreg, packager_imports
+del pygame, os, sys, platform, MissingModule, copyreg, packager_imports

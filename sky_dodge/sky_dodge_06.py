@@ -6,6 +6,10 @@ current version: September 2025
 
 by: @dlefcoe
 
+pygame:
+    pip uninstall pygame
+    pip install pygame-ce
+
 
 music from: https://freemusicarchive.org/genre/Instrumental
 
@@ -16,6 +20,7 @@ music from: https://freemusicarchive.org/genre/Instrumental
 import os
 import pygame
 import random
+
 
 # define size (for screen)
 WIDTH = 800
@@ -36,7 +41,6 @@ WHITE = (255, 255, 255)
 game_folder = os.path.dirname(__file__)
 img_folder = os.path.join(game_folder, "img")
 snd_folder = os.path.join(game_folder, "snd")
-
 
 
 class Player(pygame.sprite.Sprite):
@@ -141,9 +145,13 @@ class Game:
 
         # text message to player
         self.font = pygame.font.SysFont("monospace", 12)
-        self.textRect = self.font.render("sky dodge text", True, WHITE, BLACK).get_rect()
+        self.textRect = self.font.render(
+            "sky dodge text", True, WHITE, BLACK
+        ).get_rect()
         self.textRect.center = (int(WIDTH * 0.60), int(HEIGHT * 0.05))
-        self.textRect02 = self.font.render("sky dodge text", True, WHITE, BLACK).get_rect()
+        self.textRect02 = self.font.render(
+            "sky dodge text", True, WHITE, BLACK
+        ).get_rect()
         self.textRect02.center = (int(WIDTH * 0.60), int(HEIGHT * 0.07))
 
         # setup the drawing window
@@ -158,7 +166,7 @@ class Game:
         # self.all_sprites = pygame.sprite.Group()
 
         # initialise enemies
-        self.enemy = []
+        self.enemy: list[Enemy] = []
         self.numEnemies = 10
         for i in range(self.numEnemies):
             e = Enemy()
@@ -181,7 +189,7 @@ class Game:
             if event.type == pygame.QUIT:
                 self.running = False
             if event.type == pygame.KEYDOWN:
-                key_press:int = event.key
+                key_press: int = event.key
                 if key_press == pygame.K_DOWN:
                     self.player.y_speed += 1
                 if key_press == pygame.K_UP:
@@ -196,14 +204,16 @@ class Game:
     def update_player_movement(self):
         """Move player toward mouse position (with speed limits)"""
         mousePosition = pygame.mouse.get_pos()
-        if mousePosition[0] > self.player.rect.center[0] and self.player.x_speed < self.speedLimit:
-            self.player.x_speed = int((mousePosition[0] - self.player.rect.center[0]) / 10)
-        if mousePosition[0] < self.player.rect.center[0] and self.player.x_speed > -self.speedLimit:
-            self.player.x_speed = int((mousePosition[0] - self.player.rect.center[0]) / 10)
-        if mousePosition[1] > self.player.rect.center[1] and self.player.y_speed < self.speedLimit:
-            self.player.y_speed = int((mousePosition[1] - self.player.rect.center[1]) / 10)
-        if mousePosition[1] < self.player.rect.center[1] and self.player.y_speed > -self.speedLimit:
-            self.player.y_speed = int((mousePosition[1] - self.player.rect.center[1]) / 10)
+        r0 = self.player.rect.center[0]
+        r1 = self.player.rect.center[1]
+        if mousePosition[0] > r0 and self.player.x_speed < self.speedLimit:
+            self.player.x_speed = int((mousePosition[0] - r0) / 10)
+        if mousePosition[0] < r0 and self.player.x_speed > -self.speedLimit:
+            self.player.x_speed = int((mousePosition[0] - r0) / 10)
+        if mousePosition[1] > r1 and self.player.y_speed < self.speedLimit:
+            self.player.y_speed = int((mousePosition[1] - r1) / 10)
+        if mousePosition[1] < r1 and self.player.y_speed > -self.speedLimit:
+            self.player.y_speed = int((mousePosition[1] - r1) / 10)
 
     def handle_collisions(self):
         """Check and handle collisions with enemies"""
@@ -211,7 +221,8 @@ class Game:
         my_enemy: Enemy = self.enemy[0]
         if (
             abs(self.player.rect.center[0] - my_enemy.rect.center[0]) < collisionRadius
-            and abs(self.player.rect.center[1] - my_enemy.rect.center[1]) < collisionRadius
+            and abs(self.player.rect.center[1] - my_enemy.rect.center[1])
+            < collisionRadius
         ):
             print("enemy count crash:", self.numEnemies)
             self.thwack_01.play()
@@ -294,4 +305,3 @@ class Game:
 
 # Run the game
 Game().run()
-
