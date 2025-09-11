@@ -188,18 +188,19 @@ class Game:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
-            if event.type == pygame.KEYDOWN:
-                key_press: int = event.key
-                if key_press == pygame.K_DOWN:
-                    self.player.y_speed += 1
-                if key_press == pygame.K_UP:
-                    self.player.y_speed -= 1
-                if key_press == pygame.K_LEFT:
-                    self.player.x_speed -= 1
-                if key_press == pygame.K_RIGHT:
-                    self.player.x_speed += 1
-                if key_press == pygame.K_ESCAPE:
-                    self.running = False
+
+        key_press = pygame.key.get_pressed()
+        if key_press[pygame.K_DOWN]:
+            self.player.y_speed += 1
+        if key_press[pygame.K_UP]:
+            self.player.y_speed -= 1
+        if key_press[pygame.K_LEFT]:
+            self.player.x_speed -= 1
+        if key_press[pygame.K_RIGHT]:
+            self.player.x_speed += 1
+        if key_press[pygame.K_ESCAPE]:
+            self.running = False
+
 
     def update_player_movement(self):
         """Move player toward mouse position (with speed limits)"""
