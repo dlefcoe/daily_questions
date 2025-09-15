@@ -116,6 +116,21 @@ class Enemy(pygame.sprite.Sprite):
         if self.rect.right < 0:
             self.rect.left = WIDTH
 
+class Bullets(pygame.sprite.Sprite):
+    """class for bullet sprite"""
+
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((10, 5))
+        self.image.fill(RED)
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
+        self.x_speed = 10
+
+    def update(self):
+        self.rect.x += self.x_speed
+        if self.rect.left > WIDTH:
+            self.kill()
 
 class Game:
     def __init__(self):
@@ -200,7 +215,6 @@ class Game:
             self.player.x_speed += 1
         if key_press[pygame.K_ESCAPE]:
             self.running = False
-
 
     def update_player_movement(self):
         """Move player toward mouse position (with speed limits)"""

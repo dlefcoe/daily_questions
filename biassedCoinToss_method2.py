@@ -23,6 +23,7 @@ def biased_cointoss():
     
 
 def unbiased_toss():
+    ''' Return result of an unbiased cointoss using biased_cointoss().'''
     toss1 = biased_cointoss()
     toss2 = biased_cointoss()
 
@@ -37,15 +38,18 @@ def unbiased_toss():
         return unbiased_toss()
 
 
+def main():
+    ''' the main function '''
+    # Do one thousand tosses to test 83% bias
+    x = [biased_cointoss() for x in range(1000)]
+    print(x.count(True), "<-- should be around 830", f'the diff is {x.count(True)-830}')
+
+    # Do one thousand tosses to test unbiasededness 
+    x = [unbiased_toss() for x in range(1000)]
+    print(x.count(True), "<-- should be around 500", f'the diff is {x.count(True)-500}')
 
 
-# Do one thousand tosses to test 83% bias
-x = [biased_cointoss() for x in range(1000)]
-print(x.count(True), "<-- should be around 830")
 
-# Do one thousand tosses to test unbiasededness 
-x = [unbiased_toss() for x in range(1000)]
-print(x.count(True), "<-- should be around 500")
-
-
-
+# main guard idiom
+if __name__=='__main__':
+    main()
