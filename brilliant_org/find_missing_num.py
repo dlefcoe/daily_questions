@@ -37,6 +37,7 @@ example_list_1 = [2, 5, 1, 4, 9, 6, 3, 7, 10, 8]
 # Actual sum: 2 + 5 + ... + 8 = 55
 # Missing number: 66 - 55 = 11
 missing_1 = find_missing_number(example_list_1)
+print('example 1:')
 print(f"Input: {example_list_1}")
 print(f"Missing number: {missing_1}\n") # Output: Missing number: 11
 
@@ -50,5 +51,8 @@ test_list = [x for x in original_list if x != missing_number_to_test]
 # The 'test_list' now has 99 numbers, ranging from 1 to 100, with 57 missing.
 
 missing_2 = find_missing_number(test_list)
+print('example 2:')
 print(f"List length: {len(test_list)} (N=100)")
 print(f"Missing number (1 to 100): {missing_2}") # Output: Missing number (1 to 100): 57
+
+
