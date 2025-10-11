@@ -6,7 +6,8 @@ message1 = "This is the input message blah blah"
 message2 = "This is the input message blah blaG"
 
 
-def hash_it_up(message):
+def hash_it_up(message:str):
+    ''' Brute force a sha256 hash to find a number that matches the first 3 characters of the hash of the input message.'''
     hashed = sha256(message.encode()).hexdigest()
     print(hashed)
 

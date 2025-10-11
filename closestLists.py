@@ -17,7 +17,7 @@ the closest would be [8, 9, 10]
 import itertools as it
 
 
-def closestElements(*lsts):
+def closestElements(*lsts:list[list])->list:
     '''
     take a set of lists and return the closest element from each of the sets
     
