@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 '''
 
 Given an array of numbers and a number k, 
@@ -47,8 +46,6 @@ result = findK(arrayToTest, specifiedNumber)
 print(result)
 
 
-
-=======
 '''
 
 Given an array of numbers and a number k, 
@@ -101,5 +98,3 @@ print(result)
 '''
 the end
 '''
-
->>>>>>> 8478df38afb4958410112e72b138f4ba34198c9a
