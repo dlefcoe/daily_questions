@@ -126,26 +126,26 @@ def busy_beaver(n):
 
     program = beaver_programs[n]
 
-    print ("Running Busy Beaver with %d states." % n)
+    print (f"Running Busy Beaver with {n} states.")
     tm = TuringMachine(program, 'a', 'h', '0')
     tm.set_tape_callback(tape_callback)
     tm.run()
-    print ("Busy beaver finished in %d steps." % tm.moves)
+    print (f"Busy beaver finished in {tm.moves} steps.")
 
 def usage():
     print ("Usage: %s [1|2|3|4|5|6]" % sys.argv[0])
     print ("Runs Busy Beaver problem for 1 or 2 or 3 or 4 or 5 or 6 states.")
-    sys.exit(1)
+    sys.exit()
 
-if __name__ == "__main__":
-    if len(sys.argv[1:]) < 1:
-        usage()
-
-    n = int(sys.argv[1])
+def select_bever_number(n:int)->int:
+    n = input('select a bever number: ')
+    n = int(n)
 
     if n < 1 or n > 6:
         print ("n must be between 1 and 6 inclusive")
         print
         usage()
+    return n
 
-    busy_beaver(n)
+if __name__ == "__main__":
+    busy_beaver(4)
